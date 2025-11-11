@@ -24,7 +24,7 @@ class AppConstants {
 
   // Disclaimer médical
   static const String medicalDisclaimer =
-      '⚠️ Cette application fournit des informations nutritionnelles à titre indicatif uniquement. '
+      'Cette application fournit des informations nutritionnelles à titre indicatif uniquement. '
       'Elle ne remplace pas l\'avis d\'un médecin, nutritionniste ou diététicien. '
       'Consultez un professionnel de santé pour tout conseil médical personnalisé.';
 }
