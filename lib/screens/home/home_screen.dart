@@ -137,13 +137,16 @@ class HomeScreen extends StatelessWidget {
                         const Icon(
                           Icons.warning_amber,
                           color: AppColors.warning,
-                          size: 24,
+                          size: 28,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             AppConstants.medicalDisclaimer,
-                            style: Theme.of(context).textTheme.bodySmall,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
                           ),
                         ),
                       ],
