@@ -87,15 +87,6 @@ class AppTheme {
         ),
       ),
 
-      // Cards
-      cardTheme: const CardTheme(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
-        color: AppColors.surface,
-      ),
-
       // Texte
       textTheme: const TextTheme(
         displayLarge: TextStyle(
