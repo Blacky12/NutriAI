@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriAI - Assistant Nutritionnel Intelligent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        header p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 30px;
+            transition: transform 0.3s;
+        }
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+        section {
+            padding: 80px 0;
+        }
+        .features {
+            background: #f8f9fa;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .how-it-works {
+            background: white;
+        }
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .step {
+            text-align: center;
+            padding: 20px;
+        }
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 auto 20px;
+        }
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        footer a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🥗 NutriAI</h1>
+            <p>Votre assistant nutritionnel intelligent</p>
+            <p style="font-size: 16px; margin-top: 20px; opacity: 0.8;">
+                Analysez vos repas en quelques secondes grâce à l'intelligence artificielle
+            </p>
+            <p style="font-size: 14px; margin-top: 15px; opacity: 0.7;">
+                📱 Application mobile Android disponible
+            </p>
+            <a href="/pricing" class="cta-button">Voir les tarifs</a>
+            <a href="/pricing" class="cta-button" style="background: transparent; border: 2px solid white; margin-left: 15px;">Télécharger l'app</a>
+        </div>
+    </header>
+
+    <section class="features">
+        <div class="container">
+            <h2>Pourquoi NutriAI ?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>🤖 IA Avancée</h3>
+                    <p>Utilisez la puissance de GPT-3.5 Turbo pour analyser vos repas avec précision et obtenir des recommandations personnalisées.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📊 Analyse Complète</h3>
+                    <p>Obtenez les valeurs nutritionnelles détaillées : calories, protéines, glucides, lipides et fibres pour chaque repas.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>💡 Suggestions Intelligentes</h3>
+                    <p>Recevez des conseils pratiques pour améliorer votre alimentation et atteindre vos objectifs nutritionnels.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📱 Application Mobile</h3>
+                    <p>Accédez à NutriAI depuis votre smartphone Android, où que vous soyez.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📈 Historique Complet</h3>
+                    <p>Consultez l'historique de tous vos repas analysés pour suivre votre progression.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔒 Données Sécurisées</h3>
+                    <p>Vos données sont protégées et conformes au RGPD.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <div class="container">
+            <h2>Comment ça marche ?</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Décrivez votre repas</h3>
+                    <p>Entrez simplement la description de votre repas dans l'application</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Analyse IA</h3>
+                    <p>Notre IA analyse votre repas et extrait les informations nutritionnelles</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Résultats instantanés</h3>
+                    <p>Recevez immédiatement les valeurs nutritionnelles et des suggestions</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 NutriAI. Tous droits réservés.</p>
+            <div style="margin-top: 20px;">
+                <a href="/legal">Mentions légales</a>
+                <a href="/privacy">Confidentialité</a>
+                <a href="/cookies">Cookies</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+

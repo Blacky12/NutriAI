@@ -1,62 +1,64 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.buildlog/
-.history
-.svn/
-migrate_working_dir/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-.pub-cache/
-.pub/
-/build/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-# Environment variables (IMPORTANT!)
+# Environment variables
 .env
 .env.local
 .env.*.local
-*.env
 
-# Firebase
-firebase-debug.log
-firebase-debug.*.log
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# API Keys and secrets
-lib/core/constants/api_keys.dart
+# OS
+.DS_Store
+Thumbs.db
 
-# Build files
-*.apk
-*.aab
-*.ipa
+# Backend
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.env
+backend/*.db
+backend/*.sqlite
+
+# Android
+android_app/.gradle/
+android_app/build/
+android_app/app/build/
+android_app/.idea/
+android_app/local.properties
+android_app/*.iml
+android_app/.DS_Store
+android_app/captures/
+android_app/.externalNativeBuild/
+android_app/.cxx/
+android_app/app/release/
+android_app/app/debug/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Static files (si nécessaire, mais généralement on les garde)
+# backend/static/
+
+
