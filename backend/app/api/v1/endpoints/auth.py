@@ -24,6 +24,7 @@ class SignUpRequest(BaseModel):
 class SignInRequest(BaseModel):
     email: EmailStr
     password: str
+    password: str
 
 
 class AuthResponse(BaseModel):
@@ -39,12 +40,15 @@ async def signup(request: SignUpRequest, db: Session = Depends(get_db)):
     Créer un compte utilisateur via Clerk
     """
     if not settings.CLERK_SECRET_KEY:
+        print("❌ Clerk non configuré")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Clerk non configuré"
         )
     
     try:
+        print(f"📝 Tentative création compte pour: {request.email}")
+        
         # Appeler l'API Clerk pour créer un utilisateur
         async with httpx.AsyncClient(timeout=30.0) as client:
             clerk_url = "https://api.clerk.com/v1/users"
@@ -53,19 +57,25 @@ async def signup(request: SignUpRequest, db: Session = Depends(get_db)):
                 "Content-Type": "application/json"
             }
             
+            # Format correct pour l'API Clerk
             payload = {
                 "email_address": [request.email],
                 "password": request.password,
-                "first_name": request.first_name,
-                "last_name": request.last_name,
-                "skip_password_checks": False,
-                "skip_password_requirement": False
             }
             
+            if request.first_name:
+                payload["first_name"] = request.first_name
+            if request.last_name:
+                payload["last_name"] = request.last_name
+            
+            print(f"📤 Envoi requête à Clerk: {clerk_url}")
             response = await client.post(clerk_url, json=payload, headers=headers)
             
-            if response.status_code != 200:
+            print(f"📥 Réponse Clerk: status={response.status_code}, body={response.text[:200]}")
+            
+            if response.status_code not in [200, 201]:
                 error_detail = response.text
+                print(f"❌ Erreur Clerk: {error_detail}")
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Erreur création compte Clerk: {error_detail}"
@@ -74,45 +84,64 @@ async def signup(request: SignUpRequest, db: Session = Depends(get_db)):
             clerk_data = response.json()
             clerk_user_id = clerk_data.get("id")
             
+            print(f"✅ Utilisateur Clerk créé: {clerk_user_id}")
+            
             if not clerk_user_id:
+                print("❌ ID utilisateur Clerk non reçu")
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail="ID utilisateur Clerk non reçu"
                 )
             
-            # Créer une session pour obtenir un token
-            # Pour simplifier, on va créer l'utilisateur dans notre DB
-            # Le token sera généré lors de la connexion
-            user = db.query(User).filter(User.id == clerk_user_id).first()
-            if not user:
-                user = User(
-                    id=clerk_user_id,
-                    email=request.email,
-                    display_name=f"{request.first_name or ''} {request.last_name or ''}".strip() or "User",
-                    subscription=SubscriptionTier.FREE,
-                    daily_quota=10,
-                    quota_used=0,
-                    quota_reset_date=datetime.now()
+            # Créer l'utilisateur dans notre DB
+            try:
+                user = db.query(User).filter(User.id == clerk_user_id).first()
+                if not user:
+                    user = User(
+                        id=clerk_user_id,
+                        email=request.email,
+                        display_name=f"{request.first_name or ''} {request.last_name or ''}".strip() or "User",
+                        subscription=SubscriptionTier.FREE,
+                        daily_quota=10,
+                        quota_used=0,
+                        quota_reset_date=datetime.now()
+                    )
+                    db.add(user)
+                    db.commit()
+                    db.refresh(user)
+                    print(f"✅ Utilisateur créé dans DB: {clerk_user_id}")
+                else:
+                    print(f"ℹ️ Utilisateur existe déjà dans DB: {clerk_user_id}")
+            except Exception as db_error:
+                print(f"❌ Erreur DB: {str(db_error)}")
+                db.rollback()
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Erreur sauvegarde utilisateur: {str(db_error)}"
                 )
-                db.add(user)
-                db.commit()
-                db.refresh(user)
             
-            # Pour obtenir un token, il faut créer une session
-            # On va retourner un token temporaire ou demander à l'utilisateur de se connecter
+            # Générer un token simplifié pour MVP
+            token = f"clerk_{clerk_user_id}"
+            
             return AuthResponse(
-                token="",  # Token sera obtenu via signin
+                token=token,
                 user_id=clerk_user_id,
                 email=request.email,
-                message="Compte créé avec succès. Veuillez vous connecter."
+                message="Compte créé avec succès"
             )
             
+    except HTTPException:
+        raise
     except httpx.HTTPError as e:
+        print(f"❌ Erreur HTTP Clerk: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erreur communication avec Clerk: {str(e)}"
         )
     except Exception as e:
+        print(f"❌ Erreur inattendue: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erreur création compte: {str(e)}"
