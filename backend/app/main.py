@@ -8,7 +8,7 @@ import os
 from .core.config import get_settings
 from .core.database import create_tables, engine
 from .models import User, Meal
-from .api.v1.endpoints import meals, admin
+from .api.v1.endpoints import meals, admin, auth
 
 settings = get_settings()
 
@@ -39,6 +39,7 @@ app.add_middleware(
 
 app.include_router(meals.router, prefix="/api/v1/meals", tags=["meals"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 
 # Servir les fichiers statiques
 static_dir = os.path.join(os.path.dirname(__file__), "..", "static")

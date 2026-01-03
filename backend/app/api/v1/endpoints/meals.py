@@ -9,6 +9,7 @@ from datetime import datetime
 
 from ....core.database import get_db
 from ....core.config import get_settings
+from ....core.auth import get_current_user
 from ....models.meal import Meal
 from ....models.user import User, SubscriptionTier
 from ....schemas.meal import MealAnalysisRequest, MealAnalysisResponse, NutritionData, MealMetadata, MealRead
@@ -16,29 +17,16 @@ from ....schemas.meal import MealAnalysisRequest, MealAnalysisResponse, Nutritio
 router = APIRouter()
 settings = get_settings()
 
-# User temporaire pour MVP (sera remplacé par Clerk)
-TEMP_USER_ID = "temp_user_123"
-
 
 @router.post("/analyze", response_model=MealAnalysisResponse)
-async def analyze_meal(request: MealAnalysisRequest, db: Session = Depends(get_db)):
+async def analyze_meal(
+    request: MealAnalysisRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
     """Analyse un repas via OpenRouter"""
     
-    # Créer ou récupérer l'utilisateur temporaire
-    user = db.query(User).filter(User.id == TEMP_USER_ID).first()
-    if not user:
-        user = User(
-            id=TEMP_USER_ID,
-            email="temp@nutriai.app",
-            display_name="Temp User",
-            subscription=SubscriptionTier.FREE,
-            daily_quota=10,
-            quota_used=0,
-            quota_reset_date=datetime.now()
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+    # L'utilisateur est déjà récupéré depuis Clerk via get_current_user
     
     # Vérifier quota
     if user.has_reached_quota():
@@ -142,7 +130,7 @@ async def analyze_meal(request: MealAnalysisRequest, db: Session = Depends(get_d
         meal_id = str(uuid.uuid4())
         meal = Meal(
             id=meal_id,
-            user_id=TEMP_USER_ID,
+            user_id=user.id,
             description=request.description.strip(),
             calories=float(nutrition_json.get("calories", 0)),
             proteins=float(nutrition_json.get("proteins", 0)),
@@ -188,16 +176,21 @@ async def analyze_meal(request: MealAnalysisRequest, db: Session = Depends(get_d
 
 
 @router.get("/", response_model=List[MealRead])
-async def get_meals(db: Session = Depends(get_db), skip: int = 0, limit: int = 20):
-    """Récupère l'historique"""
+async def get_meals(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+    skip: int = 0,
+    limit: int = 20
+):
+    """Récupère l'historique de l'utilisateur connecté"""
     try:
         meals = db.query(Meal)\
-            .filter(Meal.user_id == TEMP_USER_ID)\
+            .filter(Meal.user_id == user.id)\
             .order_by(Meal.created_at.desc())\
             .offset(skip)\
             .limit(limit)\
             .all()
-        print(f"✅ Récupération historique: {len(meals)} repas trouvés pour user {TEMP_USER_ID}")
+        print(f"✅ Récupération historique: {len(meals)} repas trouvés pour user {user.id}")
         
         # Convertir les meals en MealRead avec created_at en string
         result = []

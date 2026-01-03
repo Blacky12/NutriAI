@@ -8,7 +8,7 @@ Application mobile Android avec backend FastAPI pour analyser les repas grâce �
 |---------|-------------|
 | **Frontend** | Kotlin + Jetpack Compose |
 | **Backend** | FastAPI (Python) |
-| **Auth** | Clerk (à implémenter) |
+| **Auth** | Clerk (intégré) |
 | **Base de données** | PostgreSQL |
 | **ORM** | SQLAlchemy |
 | **IA** | OpenRouter (GPT-3.5 Turbo) |
@@ -75,7 +75,15 @@ project2/
 - `/privacy` - Politique de confidentialité
 - `/cookies` - Politique des cookies
 
-Documentation API : `http://localhost:8000/docs`
+Documentation API : `http://localhost:8000/docs` (local) ou `https://nutriai-backend-htic.onrender.com/docs` (production)
+
+## 🌐 URLs de Production
+
+- **API** : https://nutriai-backend-htic.onrender.com
+- **Landing Page** : https://nutriai-backend-htic.onrender.com/
+- **Dashboard Admin** : https://nutriai-backend-htic.onrender.com/admin
+- **Pricing** : https://nutriai-backend-htic.onrender.com/pricing
+- **Mentions Légales** : https://nutriai-backend-htic.onrender.com/legal
 
 ## 📚 Documentation
 

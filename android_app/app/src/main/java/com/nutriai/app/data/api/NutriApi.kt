@@ -17,7 +17,46 @@ interface NutriApi {
 
     @GET("/api/v1/meals/{mealId}")
     suspend fun getMeal(@Path("mealId") mealId: String): MealRead
+    
+    // Auth endpoints
+    @POST("/api/v1/auth/signup")
+    suspend fun signUp(@Body request: SignUpRequest): AuthResponse
+    
+    @POST("/api/v1/auth/signin")
+    suspend fun signIn(@Body request: SignInRequest): AuthResponse
+    
+    @GET("/api/v1/auth/me")
+    suspend fun getCurrentUser(): UserInfo
 }
+
+data class SignUpRequest(
+    val email: String,
+    val password: String,
+    val first_name: String? = null,
+    val last_name: String? = null
+)
+
+data class SignInRequest(
+    val email: String,
+    val password: String
+)
+
+data class AuthResponse(
+    val token: String,
+    val user_id: String,
+    val email: String,
+    val message: String
+)
+
+data class UserInfo(
+    val id: String,
+    val email: String,
+    val display_name: String,
+    val subscription: String,
+    val daily_quota: Int,
+    val quota_used: Int,
+    val quota_remaining: Int
+)
 
 data class RootResponse(val message: String)
 data class HealthResponse(val status: String)

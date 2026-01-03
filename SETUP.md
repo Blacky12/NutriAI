@@ -11,6 +11,8 @@ cd backend
 echo DEBUG=True > .env
 echo DATABASE_URL=postgresql://postgres:VOTRE_MDP@localhost:5432/nutriai_db >> .env
 echo OPENROUTER_API_KEY=sk-or-v1-VOTRE_CLE >> .env
+echo CLERK_SECRET_KEY=sk_test_VOTRE_CLE_SECRETE >> .env
+echo CLERK_PUBLISHABLE_KEY=pk_test_VOTRE_CLE_PUBLIQUE >> .env
 
 # Installer et lancer
 pip install -r requirements.txt
@@ -84,11 +86,36 @@ Dans `backend/.env` :
 DEBUG=True
 DATABASE_URL=postgresql://postgres:VOTRE_MOT_DE_PASSE@localhost:5432/nutriai_db
 OPENROUTER_API_KEY=sk-or-v1-VOTRE_CLE_API_ICI
+CLERK_SECRET_KEY=sk_test_VOTRE_CLE_CLERK_SECRETE
+CLERK_PUBLISHABLE_KEY=pk_test_VOTRE_CLE_CLERK_PUBLIQUE
 ```
 
 **Remplacez :**
 - `VOTRE_MOT_DE_PASSE` → Votre mot de passe PostgreSQL
 - `VOTRE_CLE_API_ICI` → Votre clé OpenRouter
+- `VOTRE_CLE_CLERK_SECRETE` → Votre clé secrète Clerk (voir ci-dessous)
+- `VOTRE_CLE_CLERK_PUBLIQUE` → Votre clé publique Clerk
+
+**Note :** Si vous n'avez pas encore configuré Clerk, vous pouvez laisser ces lignes vides. L'application utilisera un utilisateur temporaire pour le développement.
+
+---
+
+## 🔐 Configuration Clerk (Optionnel pour développement local)
+
+### Obtenir les clés Clerk
+
+1. Créer un compte sur [clerk.com](https://clerk.com) (gratuit)
+2. Créer une nouvelle application
+3. Aller dans "API Keys"
+4. Copier :
+   - **Secret Key** → `CLERK_SECRET_KEY` (commence par `sk_test_`)
+   - **Publishable Key** → `CLERK_PUBLISHABLE_KEY` (commence par `pk_test_`)
+
+### Pour la production (Render)
+
+Ajoutez ces variables dans les variables d'environnement Render :
+- `CLERK_SECRET_KEY` : Votre clé secrète Clerk
+- `CLERK_PUBLISHABLE_KEY` : Votre clé publique Clerk
 
 ---
 

@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     OPENROUTER_API_KEY: Optional[str] = None
     OPENROUTER_MODEL: str = "openai/gpt-3.5-turbo"
     
+    # Clerk Authentication
+    CLERK_SECRET_KEY: Optional[str] = None
+    CLERK_PUBLISHABLE_KEY: Optional[str] = None
+    
     # CORS - Accepte string (ex: "*") ou liste séparée par virgules
     CORS_ORIGINS: Union[str, list[str]] = "http://localhost:3000,http://localhost:8081,http://10.0.2.2:8000"
     

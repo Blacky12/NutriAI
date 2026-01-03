@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -14,9 +15,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.nutriai.app.data.auth.AuthManager
 import com.nutriai.app.ui.screens.MealInputScreen
 import com.nutriai.app.ui.screens.MealResultScreen
 import com.nutriai.app.ui.screens.MealHistoryScreen
+import com.nutriai.app.ui.screens.LoginScreen
+import com.nutriai.app.ui.screens.SignUpScreen
 import com.nutriai.app.ui.theme.NutriAITheme
 import com.nutriai.app.viewmodel.MealViewModel
 import com.nutriai.app.viewmodel.HomeViewModel
@@ -24,6 +28,10 @@ import com.nutriai.app.viewmodel.HomeViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Initialiser AuthManager
+        AuthManager.initialize(this)
+        
         enableEdgeToEdge()
         setContent {
             NutriAITheme {
@@ -37,11 +45,24 @@ class MainActivity : ComponentActivity() {
 fun NutriAIApp() {
     val navController = rememberNavController()
     val mealViewModel: MealViewModel = viewModel()
+    val isAuthenticated by AuthManager.isAuthenticated.collectAsState()
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = if (isAuthenticated) "home" else "login"
     ) {
+        composable("login") {
+            LoginScreen(
+                onLoginSuccess = { navController.navigate("home") { popUpTo("login") { inclusive = true } } },
+                onSignUpClick = { navController.navigate("signup") }
+            )
+        }
+        composable("signup") {
+            SignUpScreen(
+                onSignUpSuccess = { navController.navigate("home") { popUpTo("signup") { inclusive = true } } },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
         composable("home") {
             // Réinitialiser l'état si nécessaire
             LaunchedEffect(Unit) {
@@ -155,6 +176,15 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Historique")
+            }
+            
+            TextButton(
+                onClick = {
+                    AuthManager.signOut()
+                    // Navigation sera gérée automatiquement par le NavHost
+                }
+            ) {
+                Text("Déconnexion")
             }
             
             Spacer(modifier = Modifier.weight(1f))
