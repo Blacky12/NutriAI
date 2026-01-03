@@ -6,5 +6,5 @@ python-dotenv==1.0.1
 pydantic==2.10.3
 pydantic-settings==2.6.1
 httpx==0.28.1
-clerk-sdk-python==1.0.0
+clerk-sdk-python==0.1.0
 python-jose[cryptography]==3.3.0
