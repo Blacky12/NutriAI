@@ -59,49 +59,68 @@ async def get_current_user(
     
     # Vérifier le token avec Clerk
     try:
-        # Décoder le JWT pour obtenir l'ID utilisateur
-        # Clerk utilise des JWTs signés avec leur clé publique
-        # Pour simplifier, on va utiliser l'API Clerk pour vérifier le token
-        try:
-            # Récupérer les infos de l'utilisateur depuis Clerk
-            # Le token JWT contient l'ID utilisateur dans le claim "sub"
-            decoded_token = jwt.get_unverified_claims(token)
-            clerk_user_id = decoded_token.get("sub")
+        clerk_user_id = None
+        email = ""
+        display_name = "User"
+        
+        # Pour MVP : accepter les tokens simplifiés (clerk_{user_id})
+        if token.startswith("clerk_"):
+            # Token simplifié pour MVP - extraire l'ID utilisateur directement
+            clerk_user_id = token.replace("clerk_", "")
+            print(f"✅ Token simplifié détecté, user_id: {clerk_user_id}")
             
-            if not clerk_user_id:
+            # Pour les tokens simplifiés, récupérer les infos depuis la DB
+            # (l'utilisateur a déjà été créé lors de l'inscription)
+            existing_user = db.query(User).filter(User.id == clerk_user_id).first()
+            if existing_user:
+                email = existing_user.email
+                display_name = existing_user.display_name
+        else:
+            # Token JWT réel de Clerk
+            try:
+                decoded_token = jwt.get_unverified_claims(token)
+                clerk_user_id = decoded_token.get("sub")
+                
+                if not clerk_user_id:
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="Token invalide: ID utilisateur manquant",
+                    )
+                
+                # Récupérer les infos complètes de l'utilisateur depuis Clerk API REST
+                try:
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        headers = {"Authorization": f"Bearer {settings.CLERK_SECRET_KEY}"}
+                        response = await client.get(
+                            f"https://api.clerk.com/v1/users/{clerk_user_id}",
+                            headers=headers
+                        )
+                        if response.status_code == 200:
+                            user_info = response.json()
+                            email = user_info.get("email_addresses", [{}])[0].get("email_address", "") if user_info.get("email_addresses") else ""
+                            first_name = user_info.get("first_name", "")
+                            last_name = user_info.get("last_name", "")
+                            display_name = f"{first_name} {last_name}".strip() or user_info.get("username", "User")
+                        else:
+                            # Si on ne peut pas récupérer depuis Clerk, utiliser les infos du token
+                            email = decoded_token.get("email", "")
+                            display_name = decoded_token.get("name") or decoded_token.get("first_name", "User")
+                except:
+                    # Si on ne peut pas récupérer depuis Clerk, utiliser les infos du token
+                    email = decoded_token.get("email", "")
+                    display_name = decoded_token.get("name") or decoded_token.get("first_name", "User")
+                    
+            except JWTError:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Token invalide: ID utilisateur manquant",
+                    detail="Token JWT invalide",
+                    headers={"WWW-Authenticate": "Bearer"},
                 )
-            
-            # Récupérer les infos complètes de l'utilisateur depuis Clerk API REST
-            try:
-                async with httpx.AsyncClient(timeout=10.0) as client:
-                    headers = {"Authorization": f"Bearer {settings.CLERK_SECRET_KEY}"}
-                    response = await client.get(
-                        f"https://api.clerk.com/v1/users/{clerk_user_id}",
-                        headers=headers
-                    )
-                    if response.status_code == 200:
-                        user_info = response.json()
-                        email = user_info.get("email_addresses", [{}])[0].get("email_address", "") if user_info.get("email_addresses") else ""
-                        first_name = user_info.get("first_name", "")
-                        last_name = user_info.get("last_name", "")
-                        display_name = f"{first_name} {last_name}".strip() or user_info.get("username", "User")
-                    else:
-                        # Si on ne peut pas récupérer depuis Clerk, utiliser les infos du token
-                        email = decoded_token.get("email", "")
-                        display_name = decoded_token.get("name") or decoded_token.get("first_name", "User")
-            except:
-                # Si on ne peut pas récupérer depuis Clerk, utiliser les infos du token
-                email = decoded_token.get("email", "")
-                display_name = decoded_token.get("name") or decoded_token.get("first_name", "User")
-                
-        except JWTError:
+        
+        if not clerk_user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token JWT invalide",
-                headers={"WWW-Authenticate": "Bearer"},
+                detail="Token invalide: impossible d'extraire l'ID utilisateur",
             )
         
         # Récupérer ou créer l'utilisateur dans notre DB
