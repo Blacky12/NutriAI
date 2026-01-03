@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, Union
+from pydantic import field_validator
 
 
 class Settings(BaseSettings):
@@ -16,8 +17,22 @@ class Settings(BaseSettings):
     OPENROUTER_API_KEY: Optional[str] = None
     OPENROUTER_MODEL: str = "openai/gpt-3.5-turbo"
     
-    # CORS - Si "*" dans la liste, permet toutes les origines
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8081", "http://10.0.2.2:8000"]
+    # CORS - Accepte string (ex: "*") ou liste séparée par virgules
+    CORS_ORIGINS: Union[str, list[str]] = "http://localhost:3000,http://localhost:8081,http://10.0.2.2:8000"
+    
+    @field_validator('CORS_ORIGINS', mode='before')
+    @classmethod
+    def parse_cors_origins(cls, v):
+        """Parse CORS_ORIGINS depuis string ou liste"""
+        if isinstance(v, list):
+            return v
+        if isinstance(v, str):
+            # Si c'est "*", retourner ["*"]
+            if v.strip() == "*":
+                return ["*"]
+            # Sinon, split par virgule
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
     
     class Config:
         env_file = ".env"
