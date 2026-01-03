@@ -1,6 +1,5 @@
 from fastapi import Depends, HTTPException, status, Header
 from typing import Optional
-from clerk_sdk_python import Clerk
 from sqlalchemy.orm import Session
 from datetime import datetime
 from jose import jwt, JWTError
@@ -12,11 +11,6 @@ from ..models.user import User, SubscriptionTier
 
 settings = get_settings()
 
-# Initialiser Clerk client
-clerk_client = None
-if settings.CLERK_SECRET_KEY:
-    clerk_client = Clerk(bearer_auth=settings.CLERK_SECRET_KEY)
-
 
 async def get_current_user(
     authorization: Optional[str] = Header(None),
@@ -27,7 +21,7 @@ async def get_current_user(
     Si Clerk n'est pas configuré, utilise un utilisateur temporaire pour le développement
     """
     # Mode développement : si Clerk n'est pas configuré, utiliser un utilisateur temporaire
-    if not clerk_client or not settings.CLERK_SECRET_KEY:
+    if not settings.CLERK_SECRET_KEY:
         print("⚠️ Clerk non configuré, utilisation d'un utilisateur temporaire pour le développement")
         temp_user_id = "temp_user_dev"
         user = db.query(User).filter(User.id == temp_user_id).first()
@@ -80,13 +74,24 @@ async def get_current_user(
                     detail="Token invalide: ID utilisateur manquant",
                 )
             
-            # Récupérer les infos complètes de l'utilisateur depuis Clerk API
+            # Récupérer les infos complètes de l'utilisateur depuis Clerk API REST
             try:
-                user_info = clerk_client.users.get(clerk_user_id)
-                email = user_info.get("email_addresses", [{}])[0].get("email_address", "") if user_info.get("email_addresses") else ""
-                first_name = user_info.get("first_name", "")
-                last_name = user_info.get("last_name", "")
-                display_name = f"{first_name} {last_name}".strip() or user_info.get("username", "User")
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    headers = {"Authorization": f"Bearer {settings.CLERK_SECRET_KEY}"}
+                    response = await client.get(
+                        f"https://api.clerk.com/v1/users/{clerk_user_id}",
+                        headers=headers
+                    )
+                    if response.status_code == 200:
+                        user_info = response.json()
+                        email = user_info.get("email_addresses", [{}])[0].get("email_address", "") if user_info.get("email_addresses") else ""
+                        first_name = user_info.get("first_name", "")
+                        last_name = user_info.get("last_name", "")
+                        display_name = f"{first_name} {last_name}".strip() or user_info.get("username", "User")
+                    else:
+                        # Si on ne peut pas récupérer depuis Clerk, utiliser les infos du token
+                        email = decoded_token.get("email", "")
+                        display_name = decoded_token.get("name") or decoded_token.get("first_name", "User")
             except:
                 # Si on ne peut pas récupérer depuis Clerk, utiliser les infos du token
                 email = decoded_token.get("email", "")
