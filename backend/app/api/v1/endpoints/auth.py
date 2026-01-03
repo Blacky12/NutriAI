@@ -61,6 +61,8 @@ async def signup(request: SignUpRequest, db: Session = Depends(get_db)):
             payload = {
                 "email_address": [request.email],
                 "password": request.password,
+                "skip_password_checks": True,  # Pour MVP : désactiver vérification pwned passwords
+                "skip_password_requirement": False,
             }
             
             if request.first_name:
@@ -76,9 +78,25 @@ async def signup(request: SignUpRequest, db: Session = Depends(get_db)):
             if response.status_code not in [200, 201]:
                 error_detail = response.text
                 print(f"❌ Erreur Clerk: {error_detail}")
+                
+                # Parser l'erreur pour donner un message plus clair
+                try:
+                    error_json = response.json()
+                    if "errors" in error_json and len(error_json["errors"]) > 0:
+                        error_message = error_json["errors"][0].get("message", "Erreur inconnue")
+                        # Message plus user-friendly
+                        if "pwned" in error_message.lower() or "data breach" in error_message.lower():
+                            error_message = "Ce mot de passe a été compromis dans une fuite de données. Veuillez utiliser un mot de passe plus sécurisé."
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=error_message
+                        )
+                except:
+                    pass
+                
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Erreur création compte Clerk: {error_detail}"
+                    detail=f"Erreur création compte: {error_detail[:200]}"
                 )
             
             clerk_data = response.json()
