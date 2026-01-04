@@ -87,9 +87,9 @@ Documentation API : `http://localhost:8000/docs` (local) ou `https://nutriai-bac
 
 ## 📚 Documentation
 
-- **[SETUP.md](SETUP.md)** - Guide de configuration
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guide de déploiement
-- **[docs/suivi_hebdomadaire.md](docs/suivi_hebdomadaire.md)** - Document de suivi
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guide de déploiement sur Render
+- **[GENERER_APK.md](GENERER_APK.md)** - Guide pour générer l'APK Android
+- **[docs/EXPLICATION_CODE_ORAL.md](docs/EXPLICATION_CODE_ORAL.md)** - Guide d'explication du code pour l'oral
 - **[docs/cahier_des_charges.md](docs/cahier_des_charges.md)** - Cahier des charges complet
 
 ## 📄 Licence

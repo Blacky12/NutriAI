@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     CLERK_SECRET_KEY: Optional[str] = None
     CLERK_PUBLISHABLE_KEY: Optional[str] = None
     
+    # Admin Dashboard
+    ADMIN_PASSWORD: str = "admin123"  # À changer en production !
+    
     # CORS - Accepte string (ex: "*") ou liste séparée par virgules
     CORS_ORIGINS: Union[str, list[str]] = "http://localhost:3000,http://localhost:8081,http://10.0.2.2:8000"
     

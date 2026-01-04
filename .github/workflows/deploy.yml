@@ -1,0 +1,39 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'render.yaml'
+      - '.github/workflows/deploy.yml'
+
+jobs:
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Notify deployment
+        run: |
+          echo "🚀 Deployment triggered for commit ${{ github.sha }}"
+          echo "📦 Render will automatically deploy from GitHub"
+          echo "✅ This workflow validates that deployment can proceed"
+      
+      - name: Validate deployment files
+        run: |
+          echo "✅ Validating deployment configuration..."
+          if [ ! -f render.yaml ]; then
+            echo "❌ render.yaml not found"
+            exit 1
+          fi
+          if [ ! -f backend/Procfile ]; then
+            echo "❌ Procfile not found"
+            exit 1
+          fi
+          echo "✅ All deployment files present"
+
