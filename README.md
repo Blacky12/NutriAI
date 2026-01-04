@@ -272,12 +272,10 @@ project2/
 
 ## 🌐 URLs de Production
 
-- **API Backend** : https://nutriai-backend-htic.onrender.com
 - **Landing Page** : https://nutriai-backend-htic.onrender.com/
 - **Dashboard Admin** : https://nutriai-backend-htic.onrender.com/admin
   - Mot de passe par défaut : `admin123`
 - **Page Pricing** : https://nutriai-backend-htic.onrender.com/pricing
-- **Documentation API** : https://nutriai-backend-htic.onrender.com/docs
 
 ## 🔐 Authentification
 
