@@ -41,10 +41,26 @@ async def admin_login(request: AdminLoginRequest, response: Response):
 
 
 @router.get("/logout")
-async def admin_logout(response: Response):
+async def admin_logout(request: Request, response: Response):
     """Déconnexion admin"""
-    response.delete_cookie("admin_session")
-    return RedirectResponse(url="/admin")
+    from ....core.admin_auth import admin_sessions
+    
+    # Récupérer le token de session depuis les cookies
+    admin_session = request.cookies.get("admin_session")
+    
+    # Supprimer la session de la liste
+    if admin_session and admin_session in admin_sessions:
+        admin_sessions.discard(admin_session)
+    
+    # Supprimer le cookie avec les mêmes paramètres que lors de la création
+    response.delete_cookie(
+        key="admin_session",
+        httponly=True,
+        samesite="lax",
+        path="/"
+    )
+    
+    return RedirectResponse(url="/admin", status_code=303)
 
 
 def require_admin_auth(admin_session: Optional[str] = Cookie(None)) -> bool:

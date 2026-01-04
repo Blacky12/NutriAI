@@ -222,11 +222,16 @@ async def admin_dashboard(request: Request):
     if os.path.exists(static_file):
         with open(static_file, "r", encoding="utf-8") as f:
             content = f.read()
-            # Ajouter bouton déconnexion
-            content = content.replace(
-                '<header>',
-                '<header><div style="text-align:right; margin-bottom:10px;"><a href="/api/v1/admin/logout" style="color:#e74c3c; text-decoration:none;">Déconnexion</a></div>'
-            )
+            # Ajouter bouton déconnexion avec style amélioré
+            logout_button = '''<div style="text-align:right; margin-bottom:15px;">
+                <a href="/api/v1/admin/logout" 
+                   style="display:inline-block; padding:8px 16px; background:#e74c3c; color:white; text-decoration:none; border-radius:4px; font-weight:500; transition:background 0.3s;"
+                   onmouseover="this.style.background='#c0392b'" 
+                   onmouseout="this.style.background='#e74c3c'">
+                    🚪 Déconnexion
+                </a>
+            </div>'''
+            content = content.replace('<header>', f'<header>{logout_button}')
             return HTMLResponse(content=content)
     return HTMLResponse(content="<h1>Dashboard non disponible</h1>", status_code=404)
 
